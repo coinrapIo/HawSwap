@@ -6,7 +6,8 @@ module.exports = {
         host: "127.0.0.1",
         port: 7545,
         network_id: "*"
-    },
+    }//,
+    /*
     geth:{
     	host: "127.0.0.1",
 		port: 8545,
@@ -20,5 +21,6 @@ module.exports = {
     	network_id: "42",
     	gas: "10000000"
     }
+    */
   }
 };

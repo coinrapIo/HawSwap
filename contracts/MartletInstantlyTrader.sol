@@ -72,6 +72,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             userSrcBalanceBefore += msg.value;
         userDestBalanceBefore = getBalance(dest, destAddress);
 
+        emit LogEx(srcAmount, maxDestAmount, minConversionRate);
         uint actualDestAmount = doTrade(src,
                                         srcAmount,
                                         dest,
@@ -120,7 +121,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         }
     }
 
-    event ListSupplierPairs(address supplier, ERC20 src, ERC20 dest, bool add);
+    event ListSupplierPairs(address supplier, ERC20 src, ERC20 dest, address caller, uint srcAmnt, uint destAmnt, bool add);
 
     /// @notice can be called only by admin
     /// @dev allow or prevent a specific supplier to trade a pair of tokens
@@ -134,6 +135,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         if (src != ETH_TOKEN_ADDRESS) {
             if (add) {
                 src.approve(supplier, 2**255); // approve infinity
+                // src.approve(supplier, src.balanceOf(msg.sender));
             } else {
                 src.approve(supplier, 0);
             }
@@ -142,7 +144,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         setDecimals(src);
         setDecimals(dest);
 
-        emit ListSupplierPairs(supplier, src, dest, add);
+        emit ListSupplierPairs(supplier, src, dest, msg.sender,getBalance(src, msg.sender), getBalance(dest, msg.sender), add);
     }
 
     function setParams(
@@ -259,6 +261,8 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         return whiteListContract.getUserCapInWei(user);
     }
 
+    event LogEx(uint no, uint n1, uint n2);
+
     function doTrade(
         ERC20 src,
         uint srcAmount,
@@ -289,6 +293,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             actualSrcAmount = calcSrcAmount(src, dest, actualDestAmount, rate);
             require(actualSrcAmount <= srcAmount);
         }
+        emit LogEx(srcAmount, actualSrcAmount, actualDestAmount);
 
         // do the trade
         // verify trade size is smaller than user cap
@@ -299,7 +304,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             ethAmount = actualDestAmount;
         }
 
-        require(ethAmount <= getUserCapInWei(msg.sender));
+        // require(ethAmount <= getUserCapInWei(msg.sender));
         require(doSupplierTrade(
                 src,
                 actualSrcAmount,

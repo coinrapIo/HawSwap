@@ -3,6 +3,7 @@ var TestToken = artifacts.require("./TestToken.sol");
 var OneClickTrade = artifacts.require("./MartletInstantlyTrader.sol");
 var ConversionRates = artifacts.require("./ConversionAgent.sol");
 var Supplier = artifacts.require("./Supplier.sol");
+var WhiteList = artifacts.require("./WhiteList.sol");
 
 module.exports = function(deployer) {
 	accounts = web3.eth.accounts;

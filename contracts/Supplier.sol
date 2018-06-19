@@ -239,7 +239,7 @@ contract Supplier is Withdrawable, Base{
             emit LogTrade(4, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);
         } else {
             emit LogTrade(5, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);
-            // require(destToken.transfer(destAddress, destAmount));
+            require(destToken.transfer(destAddress, destAmount));
         }
 
         emit TradeExecute(msg.sender, srcToken, srcAmount, destToken, destAmount, destAddress);
