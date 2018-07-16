@@ -23,7 +23,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     mapping(bytes32=>uint) public info; // this is only a UI field for external app.
     mapping(address=>mapping(bytes32=>bool)) public perSupplierListedPairs;
 
-    function MartletInstantlyTrader(address _admin) public {
+    constructor (address _admin) public {
         require(_admin != address(0));
         admin = _admin;
     }

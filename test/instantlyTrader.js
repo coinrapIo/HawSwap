@@ -229,9 +229,9 @@ contract('MartletInstantlyTrader', function(accounts) {
             // let result = token.approve(reserve1.address, token.balanceOf(admin));
             // console.log("#################\n", result);
             let amount1 = (new BigNumber(reserveEtherInit)).div(precisionUnits).mul(baseBuyRate1[i]).floor();
-            await token.transfer(reserve1.address, amount1.valueOf());
+            await token.transfer(reserve1.address, amount1.valueOf(), {from:admin});
             let amount2 = (new BigNumber(reserveEtherInit)).div(precisionUnits).mul(baseBuyRate2[i]).floor();
-            await token.transfer(reserve2.address, amount2.valueOf());
+            await token.transfer(reserve2.address, amount2.valueOf(),  {from:admin});
             let balance = await token.balanceOf(reserve1.address);
             assert.equal(amount1.valueOf(), balance.valueOf());
             reserve1TokenBalance.push(amount1);

@@ -32,7 +32,7 @@ module.exports.getBalancePromise = function( account ) {
 };
 
 
-module.exports.getCurrentBlock = function() {
+module.exports.getCurrentBlock = function(web3) {
     return new Promise(function (fulfill, reject){
         web3.eth.getBlockNumber(function(err,result){
             if( err ) reject(err);
