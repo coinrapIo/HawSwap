@@ -195,7 +195,7 @@ contract Supplier is Withdrawable, Base{
     {
         // can skip validation if done at kyber network level
         if (validate) {
-            emit LogTrade(1, msg.value, srcAmount, destAddress);
+            emit LogTrade(conversionRate, msg.value, srcAmount, destAddress);
             require(conversionRate > 0);
             if (srcToken == ETH_TOKEN_ADDRESS)
                 require(msg.value == srcAmount);
@@ -208,7 +208,7 @@ contract Supplier is Withdrawable, Base{
         require(destAmount > 0);
         emit LogTrade(2, destAmount, srcAmount, destAddress);
 
-        // add to imbalance
+        // // add to imbalance
         ERC20 token;
         int buy;
         if (srcToken == ETH_TOKEN_ADDRESS) {
@@ -226,14 +226,12 @@ contract Supplier is Withdrawable, Base{
             block.number
         );
 
-        // collect src tokens
+        // // collect src tokens
         if (srcToken != ETH_TOKEN_ADDRESS) {
             require(srcToken.transferFrom(msg.sender, this, srcAmount));
         }
 
-        emit LogTrade(3, destToken.balanceOf(destAddress), getBalance(destToken), destAddress);
-
-        // send dest tokens
+        // // send dest tokens
         if (destToken == ETH_TOKEN_ADDRESS) {
             destAddress.transfer(destAmount);
             emit LogTrade(4, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);

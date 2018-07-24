@@ -304,7 +304,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             ethAmount = actualDestAmount;
         }
 
-        // require(ethAmount <= getUserCapInWei(msg.sender));
+        require(ethAmount <= getUserCapInWei(msg.sender));
         require(doSupplierTrade(
                 src,
                 actualSrcAmount,
@@ -347,16 +347,18 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         returns(bool)
     {
         uint callValue = 0;
-
+        
         if (src == ETH_TOKEN_ADDRESS) {
             callValue = amount;
         } else {
             // take src tokens to this contract
-            src.transferFrom(msg.sender, this, amount);
+            require(src.transferFrom(msg.sender, this, amount));
         }
 
         // supplier sends tokens/eth to network. network sends it to destination
+
         require(supplier.trade.value(callValue)(src, amount, dest, this, conversionRate, validate));
+        emit SupplierTrade(callValue, src, amount, dest, this, conversionRate, validate);
 
         if (dest == ETH_TOKEN_ADDRESS) {
             destAddress.transfer(expectedDestAmount);
@@ -366,6 +368,8 @@ contract MartletInstantlyTrader is Withdrawable, Base {
 
         return true;
     }
+
+    event SupplierTrade(uint v, ERC20 src, uint amnt, ERC20 dest, address destAddress, uint conversionRate, bool validate);
 
     function calcDestAmount(ERC20 src, ERC20 dest, uint srcAmount, uint rate) internal view returns(uint) {
         return calcDstQty(srcAmount, getDecimals(src), getDecimals(dest), rate);

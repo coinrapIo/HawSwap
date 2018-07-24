@@ -15,7 +15,8 @@ let BigNumber = require('bignumber.js');
 let whiteListInst;
 let sgdToEthRateInWei;
 let defaultUserCapSgd = 1000;
-let oneSgdToEther = 0.0010352;
+// let oneSgdToEther = 0.0010352;
+let oneSgdToEther = 0.000323
 
 contract('WhiteList', function(accounts) {
     it("should init globals.", async function () {
@@ -39,8 +40,9 @@ contract('WhiteList', function(accounts) {
 
     it("should verify the default cap for non set user.", async function () {
         let userCap = await whiteListInst.getUserCapInWei(user1);
-       console.log("user1" + user1 + " userCap" + userCap);
+//        console.log("user1" + user1 + " userCap" + userCap);
         let expectedUserCapWei = sgdToEthRateInWei.mul(defaultUserCapSgd);
+        console.log("userCap.valueOf(), expectedUserCapWei",userCap.valueOf(), expectedUserCapWei)
         assert.equal(userCap.valueOf(), expectedUserCapWei, "unexpected user cap");
     });
 
@@ -49,6 +51,7 @@ contract('WhiteList', function(accounts) {
         await whiteListInst.setUserCategory(user2, 17, {from : operator});
         userCap = await whiteListInst.getUserCapInWei(user2);
         let expectedUserCapWei = sgdToEthRateInWei.mul(2000);
+        console.log("userCap.valueOf(), expectedUserCapWei", userCap.valueOf(), expectedUserCapWei)
         assert.equal(userCap.valueOf(), expectedUserCapWei, "unexpected user cap");
     });
 
@@ -64,6 +67,7 @@ contract('WhiteList', function(accounts) {
 
         //get user category when kgt holder
         userCategory = await whiteListInst.getUserCategory(kgtHolder);
+        console.log("userCategory, kgtCategory", userCategory.valueOf(), kgtCategory);
         assert.equal(userCategory.valueOf(), kgtCategory, "Unexpected category");
     });
 
