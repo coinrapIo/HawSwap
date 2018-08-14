@@ -1,0 +1,109 @@
+{
+  "tokens": {
+    "TAC": {
+      "name": "Tac",
+      "decimals": 18,
+      "address": "0x85463a3d9fc4298D79CAe0688570F37C6fE33aFB",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "120000000000000000000",
+      "maxTotalImbalance": "180000000000000000000"
+    },
+    "MESH": {
+      "name": "MeshBox",
+      "decimals": 18,
+      "address": "0xd77EF92ED3439E51767219626C9df2Dfe7acaCed",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "550000000000000000000",
+      "maxTotalImbalance": "820000000000000000000"
+    },
+    "SMT": {
+      "name": "SMT",
+      "decimals": 18,
+      "address": "0xC48774A357f46C2b81dc27AA272c8495CfEe4837",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "150000000000000000000",
+      "maxTotalImbalance": "230000000000000000000"
+    },
+    "ETH": {
+      "name": "Ethereum",
+      "decimals": 18,
+      "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  },
+  "exchanges": {
+    "binance": {
+      "ETH": "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577",
+      "TAC": "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577",
+      "MESH": "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577",
+      "SMT": "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577"
+    }
+  },
+  "permission": {
+    "MartletInstantlyTrader": {
+      "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
+      "operator": [
+        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58"
+      ],
+      "alerter": []
+    },
+    "Supplier": {
+      "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
+      "operator": [
+        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58"
+      ],
+      "alerter": []
+    },
+    "ConversionAgent": {
+      "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
+      "operator": [
+        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58",
+        "0x68E637E22b810ee4e88775ae169741E5c6c3fa81"
+      ],
+      "alerter": []
+    },
+    "WhiteList": {
+      "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
+      "operator": [
+        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58",
+        "0x68E637E22b810ee4e88775ae169741E5c6c3fa81"
+      ],
+      "alerter": []
+    },
+    "ExpectedRate": {
+      "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
+      "operator": [
+        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58",
+        "0x68E637E22b810ee4e88775ae169741E5c6c3fa81"
+      ],
+      "alerter": []
+    }
+  },
+  "whitelist params": {
+    "testers": [
+      "0x68E637E22b810ee4e88775ae169741E5c6c3fa81",
+      "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577"
+    ],
+    "testers category": 9,
+    "testers cap": 5000,
+    "CRP address": "0x6536d0e3b7A81caFaa9828b4178f5b52c7Fcec0c",
+    "CRP cap": 0,
+    "users": [
+      "0x68E637E22b810ee4e88775ae169741E5c6c3fa81",
+      "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577"
+    ],
+    "users category": 1,
+    "users cap": 0,
+    "default cap": 0
+  },
+  "max gas price": "50000000000",
+  "neg diff in bps": 20,
+  "min expected rate slippage": 300,
+  "KNC to ETH rate": 300,
+  "tax wallet address": "0x68E637E22b810ee4e88775ae169741E5c6c3fa81",
+  "tax fees bps": 2000,
+  "valid duration block": 24,
+  "supplier": "0x3D7E17de50E814B2087dEdFeB1fc56d58f8c8A26",
+  "pricing": "0x6e09e72a941E51ca69F0DEfd3DCE43eD3677a2Fe",
+  "coinrap": "0x2643823d6bfCb19Aa0F37911C96C2B472425D454",
+  "wrapper": "0x4cAd26Bc63a651250C6B3968a331Cc22462628c5"
+}
