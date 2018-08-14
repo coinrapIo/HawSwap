@@ -1,4 +1,4 @@
-d//let ConversionRates = artifacts.require("./ConversionRates.sol");
+//let ConversionRates = artifacts.require("./ConversionRates.sol");
 let ConversionRates = artifacts.require("./mockContracts/MockConversionRate.sol");
 let TestToken = artifacts.require("./mockContracts/TestToken.sol");
 let Wrapper = artifacts.require("./mockContracts/Wrapper.sol");

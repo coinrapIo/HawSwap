@@ -73,6 +73,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         userDestBalanceBefore = getBalance(dest, destAddress);
 
         emit LogEx(srcAmount, maxDestAmount, minConversionRate);
+        // uint actualDestAmount = 24;
         uint actualDestAmount = doTrade(src,
                                         srcAmount,
                                         dest,
@@ -121,7 +122,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         }
     }
 
-    event ListSupplierPairs(address supplier, ERC20 src, ERC20 dest, address caller, uint srcAmnt, uint destAmnt, bool add);
+    event ListSupplierPairs(address supplier, ERC20 src, ERC20 dest, bool add);
 
     /// @notice can be called only by admin
     /// @dev allow or prevent a specific supplier to trade a pair of tokens
@@ -144,7 +145,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         setDecimals(src);
         setDecimals(dest);
 
-        emit ListSupplierPairs(supplier, src, dest, msg.sender,getBalance(src, msg.sender), getBalance(dest, msg.sender), add);
+        emit ListSupplierPairs(supplier, src, dest, add);
     }
 
     function setParams(
