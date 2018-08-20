@@ -182,27 +182,27 @@ async function main() {
 
     let crpToken = {};
     crpToken.symbol = "CRP";
-    crpToken.name = "CRP";
+    crpToken.name = "CoinRap";
     crpToken.decimals = 18;
     await deployToken(crpToken)
 
-    let kncToken = {};
-    kncToken.symbol = "TAC";
-    kncToken.name = "Tac";
-    kncToken.decimals = 18;
-    await deployToken(kncToken);
+    // let kncToken = {};
+    // kncToken.symbol = "TAC";
+    // kncToken.name = "Tac";
+    // kncToken.decimals = 18;
+    // await deployToken(kncToken);
 
-    let eosToken = {};
-    eosToken.symbol = "MESH";
-    eosToken.name = "MeshBox";
-    eosToken.decimals = 18;
-    await deployToken(eosToken);
+    // let eosToken = {};
+    // eosToken.symbol = "MESH";
+    // eosToken.name = "MeshBox";
+    // eosToken.decimals = 18;
+    // await deployToken(eosToken);
 
-    let omgToken = {};
-    omgToken.symbol = "SMT";
-    omgToken.name = "SMT";
-    omgToken.decimals = 18;
-    await deployToken(omgToken)
+    // let omgToken = {};
+    // omgToken.symbol = "SMT";
+    // omgToken.name = "SMT";
+    // omgToken.decimals = 18;
+    // await deployToken(omgToken)
 
 }
 

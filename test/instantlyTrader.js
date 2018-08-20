@@ -241,14 +241,14 @@ contract('MartletInstantlyTrader', function(accounts) {
         }
     });
 
-    it("should init kyber network data, list token pairs.", async function () {
+    it("should init coinrap network data, list token pairs.", async function () {
         // add reserves
         await network.addSupplier(reserve1.address, true);
         await network.addSupplier(reserve2.address, true);
 
         //set contracts
         // feeBurner = await FeeBurner.new(admin, tokenAdd[0], network.address);
-        let kgtToken = await TestToken.new("kyber genesis token", "KGT", 0);
+        let kgtToken = await TestToken.new("coinrap genesis token", "KGT", 0);
         whiteList = await WhiteList.new(admin, kgtToken.address);
         await whiteList.addOperator(operator);
         await whiteList.setCategoryCap(0, 1000, {from:operator});

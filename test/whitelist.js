@@ -26,7 +26,7 @@ contract('WhiteList', function(accounts) {
         user1 = accounts[3];
         user2 = accounts[4];
 
-        kgtToken = await TestToken.new("Kyber genesis token", "KGT", 0);
+        kgtToken = await TestToken.new("coinrap genesis token", "KGT", 0);
         sgdToEthRateInWei = (((new BigNumber(10)).pow(18)).mul(oneSgdToEther));
         whiteListInst = await WhiteList.new(admin, kgtToken.address);
         await whiteListInst.addOperator(operator, {from: admin});

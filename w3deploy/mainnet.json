@@ -1,0 +1,128 @@
+{
+  "tokens": {
+    "TAC": {
+      "name": "TAC",
+      "decimals": 8,
+      "address": "0xca694eb79eF355eA0999485d211E68F39aE98493",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "140000000000000000000000",
+      "maxTotalImbalance": "3000000000000000000000000"
+    },
+    "MESH": {
+      "name": "MeshBox",
+      "decimals": 18,
+      "address": "0xcF9fBFfEC9e0e5BbC62E79bf1965f5Db76955661",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "128534704370179000000000",
+      "maxTotalImbalance": "1285347043701799000000000"
+    },
+    "SMT": {
+      "name": "SMT",
+      "decimals": 18,
+      "address": "0x21f15966E07a10554C364b988e91DaB01D32794A",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "27272727272727000000000",
+      "maxTotalImbalance": "145454545454545000000000"
+    },
+    "ETH": {
+      "name": "Ethereum",
+      "decimals": 18,
+      "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  },
+  "exchanges": {
+    "huobi": {
+      "ETH": "0x585bfe9ac5d64a1d0a91aa231fe3b74d5f73e132",
+      "TAC": "0x585bfe9ac5d64a1d0a91aa231fe3b74d5f73e132",
+      "MESH": "0x585bfe9ac5d64a1d0a91aa231fe3b74d5f73e132",
+      "SMT": "0x585bfe9ac5d64a1d0a91aa231fe3b74d5f73e132"
+    },
+    "hitbtc": {
+      "ETH": "0x4c2a07308cd430f5996add54fbdf27688194dbe4",
+      "MESH": "0x4c2a07308cd430f5996add54fbdf27688194dbe4",
+      "SMT": "0x4c2a07308cd430f5996add54fbdf27688194dbe4"
+    },
+    "fcoin": {
+      "ETH": "0xa00091aec419936997543f0f8bF78715915cb7D0",
+      "MESH": "0xa00091aec419936997543f0f8bF78715915cb7D0",
+      "SMT": "0xa00091aec419936997543f0f8bF78715915cb7D0",
+      "TAC": "0xa00091aec419936997543f0f8bF78715915cb7D0"
+    }
+  },
+  "permission": {
+    "MartletInstantlyTrader": {
+      "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
+      "operator": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ],
+      "alerter": []
+    },
+    "Supplier": {
+      "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
+      "operator": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ],
+      "alerter": []
+    },
+    "ConversionAgent": {
+      "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
+      "operator": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ],
+      "alerter": []
+    },
+    "WhiteList": {
+      "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
+      "operator": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ],
+      "alerter": []
+    },
+    "ExpectedRate": {
+      "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
+      "operator": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ],
+      "alerter": []
+    },
+    "SanityRates": {
+      "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
+      "operator": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ],
+      "alertter": []
+    }
+  },
+  "whitelist params": {
+    "testers": [
+      "0x68E637E22b810ee4e88775ae169741E5c6c3fa81",
+      "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577"
+    ],
+    "testers category": 9,
+    "testers cap": 5000,
+    "CRP address": "0x7629AeC34Bb0E53A723F400C066Dd8caa2c0b766",
+    "CRP cap": 0,
+    "users": [
+      "0x68E637E22b810ee4e88775ae169741E5c6c3fa81",
+      "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577"
+    ],
+    "users category": 1,
+    "users cap": 40000,
+    "default cap": 20000,
+    "ethPerCny": 500000000000000
+  },
+  "max gas price": "50000000000",
+  "neg diff in bps": 20,
+  "min expected rate slippage": 250,
+  "KNC to ETH rate": 300,
+  "tax wallet address": "0x7629AeC34Bb0E53A723F400C066Dd8caa2c0b766",
+  "tax fees bps": 2000,
+  "valid duration block": 24,
+  "supplier": "0x044eDb5d3dCeF28b6b23C26924eC3bCc20Ec9934",
+  "conversionAgent": "0x482d14bDa2Bc6dD543B8E6E35376c2A6b6ca6782",
+  "sanityRates": "0xb412EC4Fe1621DD7BBbEf280cB4D4F66948E6941",
+  "coinrap": "0xC1E3ec94dCD86C5cc17CfC116AE43D6d49439Ee7",
+  "wrapper": "0xCe0f6166B8FE37f1e70C5d0EB370169F0576D707",
+  "whitelist": "0xaB0C172e5753DEE07689CB7e19C8b4165a148B75",
+  "expectedRate": "0xBb845FF7D45E498005bf8083704A33A46b6cB497"
+}

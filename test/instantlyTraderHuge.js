@@ -262,14 +262,14 @@ contract('MartletInstantlyTrader', function(accounts) {
         }
     });
 
-    it("should init kyber network data, list token pairs.", async function () {
+    it("should init coinrap network data, list token pairs.", async function () {
         // add reserves
         await network.addSupplier(reserve1.address, true);
         await network.addSupplier(reserve2.address, true);
 
         //set contracts
         // feeBurner = await FeeBurner.new(admin, tokenAdd[0], network.address);
-        let kgtToken = await TestToken.new("kyber genesis token", "KGT", 0);
+        let kgtToken = await TestToken.new("coinrap genesis token", "KGT", 0);
         let general_cny_cap = 20000
         let one_cny_per_eth = 0.0004
         let cny_eth_rate = (new BigNumber((one_cny_per_eth * general_cny_cap)).mul(precisionUnits)).floor()

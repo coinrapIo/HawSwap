@@ -490,6 +490,10 @@ function printParams(jsonInput) {
     dictOutput["sanityRates"] = sanityRatesAddress;
     dictOutput["coinrap"] = coinrapAddress;
     dictOutput["wrapper"] = wrapperAddress;
+    dictOutput['whitelist'] = whitelistAddress;
+    dictOutput['expectedRate'] = expectedRateAddress;
+
+
     const json = JSON.stringify(dictOutput, null, 2);
     console.log(json);
     const outputFileName = jsonInput["output filename"];
