@@ -27,6 +27,26 @@ token TAC address 0x85463a3d9fc4298D79CAe0688570F37C6fE33aFB
 token MESH address 0xd77EF92ED3439E51767219626C9df2Dfe7acaCed
 token SMT address 0xC48774A357f46C2b81dc27AA272c8495CfEe4837
 
+------------------------
+0x50bbaf6b5f3da83e402604bc81c4cd6760551a8d3e8baf80202809ad718d0a27
+
+from 0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8
+nonce 596
+solc.version
+0.4.24+commit.e67f0147.Emscripten.clang
+chainId 4
+starting compilation
+undefined
+finished compilation
+waiting for balance to account 0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8
+received 72524350677060928701 wei
+deploying test token
+token CRP address 0xBA9a49E5bE7B25D5936DEAdbfdeCaD9243F35331
+token TAC address 0xC2bBFcf63F5421dBfbF9ad46C886C58ad4498518
+token MESH address 0x706065cd2D4F1E427FB910E7Bc433ad58247a5ef
+token SMT address 0x0829023dd6dDf7Bbf0de1A6c6968b68971890F58
+
+
 * 把上述tokens地址更新到rinkeby_config.json文件，开始部署rinkeby的合约。
 */
 

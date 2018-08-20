@@ -72,7 +72,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             userSrcBalanceBefore += msg.value;
         userDestBalanceBefore = getBalance(dest, destAddress);
 
-        emit LogEx(srcAmount, maxDestAmount, minConversionRate);
+        // emit LogEx(srcAmount, maxDestAmount, minConversionRate);
         // uint actualDestAmount = 24;
         uint actualDestAmount = doTrade(src,
                                         srcAmount,
@@ -262,7 +262,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         return whiteListContract.getUserCapInWei(user);
     }
 
-    event LogEx(uint no, uint n1, uint n2);
+    // event LogEx(uint no, uint n1, uint n2);
 
     function doTrade(
         ERC20 src,
@@ -294,7 +294,6 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             actualSrcAmount = calcSrcAmount(src, dest, actualDestAmount, rate);
             require(actualSrcAmount <= srcAmount);
         }
-        emit LogEx(srcAmount, actualSrcAmount, actualDestAmount);
 
         // do the trade
         // verify trade size is smaller than user cap

@@ -3,26 +3,26 @@
     "TAC": {
       "name": "Tac",
       "decimals": 18,
-      "address": "0x85463a3d9fc4298D79CAe0688570F37C6fE33aFB",
+      "address": "0xC2bBFcf63F5421dBfbF9ad46C886C58ad4498518",
       "minimalRecordResolution": "1000000000000000",
-      "maxPerBlockImbalance": "120000000000000000000",
-      "maxTotalImbalance": "180000000000000000000"
+      "maxPerBlockImbalance": "140000000000000000000000",
+      "maxTotalImbalance": "3000000000000000000000000"
     },
     "MESH": {
       "name": "MeshBox",
       "decimals": 18,
-      "address": "0xd77EF92ED3439E51767219626C9df2Dfe7acaCed",
+      "address": "0x706065cd2D4F1E427FB910E7Bc433ad58247a5ef",
       "minimalRecordResolution": "1000000000000000",
-      "maxPerBlockImbalance": "550000000000000000000",
-      "maxTotalImbalance": "820000000000000000000"
+      "maxPerBlockImbalance": "128534704370179000000000",
+      "maxTotalImbalance": "1285347043701799000000000"
     },
     "SMT": {
       "name": "SMT",
       "decimals": 18,
       "address": "0xC48774A357f46C2b81dc27AA272c8495CfEe4837",
       "minimalRecordResolution": "1000000000000000",
-      "maxPerBlockImbalance": "150000000000000000000",
-      "maxTotalImbalance": "230000000000000000000"
+      "maxPerBlockImbalance": "27272727272727000000000",
+      "maxTotalImbalance": "145454545454545000000000"
     },
     "ETH": {
       "name": "Ethereum",
@@ -42,21 +42,21 @@
     "MartletInstantlyTrader": {
       "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
       "operator": [
-        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58"
+        "0x5727d938aa27D631f1C2b9CdBF6Ba235953b621B"
       ],
       "alerter": []
     },
     "Supplier": {
       "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
       "operator": [
-        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58"
+        "0x5727d938aa27D631f1C2b9CdBF6Ba235953b621B"
       ],
       "alerter": []
     },
     "ConversionAgent": {
       "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
       "operator": [
-        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58",
+        "0x5727d938aa27D631f1C2b9CdBF6Ba235953b621B",
         "0x68E637E22b810ee4e88775ae169741E5c6c3fa81"
       ],
       "alerter": []
@@ -64,7 +64,7 @@
     "WhiteList": {
       "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
       "operator": [
-        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58",
+        "0x5727d938aa27D631f1C2b9CdBF6Ba235953b621B",
         "0x68E637E22b810ee4e88775ae169741E5c6c3fa81"
       ],
       "alerter": []
@@ -72,10 +72,17 @@
     "ExpectedRate": {
       "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
       "operator": [
-        "0xF14D14A6a04BDd976b73AB0DAa60466c01AD7e58",
+        "0x5727d938aa27D631f1C2b9CdBF6Ba235953b621B",
         "0x68E637E22b810ee4e88775ae169741E5c6c3fa81"
       ],
       "alerter": []
+    },
+    "SanityRates": {
+      "admin": "0x897eeaF88F2541Df86D61065e34e7Ba13C111CB8",
+      "operator": [
+        "0x5727d938aa27D631f1C2b9CdBF6Ba235953b621B"
+      ],
+      "alertter": []
     }
   },
   "whitelist params": {
@@ -92,18 +99,20 @@
       "0x0fc7ebf20B23437E359Bba1D214a4ED0ad72f577"
     ],
     "users category": 1,
-    "users cap": 0,
-    "default cap": 0
+    "users cap": 40000,
+    "default cap": 20000,
+    "ethPerCny": 500000000000000
   },
   "max gas price": "50000000000",
   "neg diff in bps": 20,
-  "min expected rate slippage": 300,
+  "min expected rate slippage": 250,
   "KNC to ETH rate": 300,
-  "tax wallet address": "0x68E637E22b810ee4e88775ae169741E5c6c3fa81",
+  "tax wallet address": "0xBA9a49E5bE7B25D5936DEAdbfdeCaD9243F35331",
   "tax fees bps": 2000,
   "valid duration block": 24,
-  "supplier": "0x3D7E17de50E814B2087dEdFeB1fc56d58f8c8A26",
-  "pricing": "0x6e09e72a941E51ca69F0DEfd3DCE43eD3677a2Fe",
-  "coinrap": "0x2643823d6bfCb19Aa0F37911C96C2B472425D454",
-  "wrapper": "0x4cAd26Bc63a651250C6B3968a331Cc22462628c5"
+  "supplier": "0x0d7FE15ED8D1c8b1acC0FC2BeB6f23d554BDf03d",
+  "conversionAgent": "0x0eCe468447FB7A1E4Fef6F3b414476a637827265",
+  "sanityRates": "0x13fC08e071821c68502CACF0452EFA9ba9c269a4",
+  "coinrap": "0x123003fE399e37a4F587B05014Ef741638BA0bfb",
+  "wrapper": "0xa33bb76431d581FEB09F10937Ca1C0CfdC84b7A0"
 }

@@ -173,7 +173,7 @@ contract Supplier is Withdrawable, Base{
         return rate;
     }
 
-    event LogTrade(uint no, uint num1, uint num2, address addr);
+    // event LogTrade(uint no, uint num1, uint num2, address addr);
 
         /// @dev do a trade
     /// @param srcToken Src token
@@ -193,9 +193,9 @@ contract Supplier is Withdrawable, Base{
         internal
         returns(bool)
     {
-        // can skip validation if done at kyber network level
+        // can skip validation if done at coinrap network level
         if (validate) {
-            emit LogTrade(conversionRate, msg.value, srcAmount, destAddress);
+            // emit LogTrade(conversionRate, msg.value, srcAmount, destAddress);
             require(conversionRate > 0);
             if (srcToken == ETH_TOKEN_ADDRESS)
                 require(msg.value == srcAmount);
@@ -206,7 +206,7 @@ contract Supplier is Withdrawable, Base{
         uint destAmount = getDestQty(srcToken, destToken, srcAmount, conversionRate);
         // sanity check
         require(destAmount > 0);
-        emit LogTrade(2, destAmount, srcAmount, destAddress);
+        // emit LogTrade(2, destAmount, srcAmount, destAddress);
 
         // // add to imbalance
         ERC20 token;
@@ -234,9 +234,9 @@ contract Supplier is Withdrawable, Base{
         // // send dest tokens
         if (destToken == ETH_TOKEN_ADDRESS) {
             destAddress.transfer(destAmount);
-            emit LogTrade(4, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);
+            // emit LogTrade(4, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);
         } else {
-            emit LogTrade(5, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);
+            // emit LogTrade(5, destAddress.balance, getBalance(ETH_TOKEN_ADDRESS), destAddress);
             require(destToken.transfer(destAddress, destAmount));
         }
 

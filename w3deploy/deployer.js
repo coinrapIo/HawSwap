@@ -139,6 +139,7 @@ let supplierAddress;
 let conversionAgentAddress;
 let whitelistAddress;
 let expectedRateAddress;
+let sanityRatesAddress;
 let wrapperAddress;
 
 let coinrapContract;
@@ -146,12 +147,14 @@ let supplierContract;
 let conversionAgentContract;
 let whitelistContract;
 let expectedRateContract;
+let sanityRatesContract;
 let wrapperContract;
 
 let coinrapPermissions;
 let supplierPermissions;
 let conversionAgentPermissions;
 let whitelistPermissions;
+let sanityRatesPermissions;
 let expectedRatePermissions;
 
 const depositAddresses = [];
@@ -171,6 +174,7 @@ let users;
 let usersCat;
 let usersCap;
 let kgtAddress;
+let ethPerCny;
 
 const ethAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
@@ -215,6 +219,8 @@ function parseInput( jsonInput ) {
     conversionAgentPermissions = jsonInput.permission["ConversionAgent"];
     whitelistPermissions = jsonInput.permission["WhiteList"];
     expectedRatePermissions = jsonInput.permission["ExpectedRate"];
+    sanityRatesPermissions = jsonInput.permission["SanityRates"]
+
 
     maxGasPrice =  web3.utils.toBN(jsonInput["max gas price"]);
     negDiffInBps = web3.utils.toBN(jsonInput["neg diff in bps"]);
@@ -230,6 +236,7 @@ function parseInput( jsonInput ) {
     users = jsonInput["whitelist params"]["users"];
     usersCat = jsonInput["whitelist params"]["users category"];
     usersCap = jsonInput["whitelist params"]["users cap"];
+    ethPerCny = jsonInput['whitelist params']['ethPerCny'];
     kgtAddress = jsonInput["whitelist params"]["CRP address"];
 
 
@@ -284,6 +291,8 @@ async function main() {
   [whitelistAddress, whitelistContract] = await deployContract(output, "WhiteList.sol:WhiteList", [sender, kgtAddress]);
   console.log("deploying expected rates");
   [expectedRateAddress, expectedRateContract] = await deployContract(output, "ExpectedRate.sol:ExpectedRate", [coinrapAddress,sender]);
+  console.log("deploying sanity rates");
+  [sanityRatesAddress, sanityRatesContract] = await deployContract(output, "SanityRates.sol:SanityRates", [sender]);
   console.log("deploying wrapper");
   [wrapperAddress, wrapperContract] = await deployContract(output, "Wrapper.sol:Wrapper", [coinrapAddress,sender]);
 
@@ -377,7 +386,7 @@ async function main() {
   console.log("white list - add temp opeator to set sgd rate");
   await sendTx(whitelistContract.methods.addOperator(sender));
   console.log("white list - set sgd rate");
-  await sendTx(whitelistContract.methods.setSgdToEthRate(web3.utils.toBN("645161290322581")));
+  await sendTx(whitelistContract.methods.setSgdToEthRate(web3.utils.toBN(ethPerCny)));
   console.log("white list - init users list");
   for(let i = 0 ; i < users.length ; i++ ) {
     console.log(users[i]);
@@ -477,7 +486,8 @@ function printParams(jsonInput) {
     dictOutput["tax fees bps"] = jsonInput["tax fees bps"];
     dictOutput["valid duration block"] = jsonInput["valid duration block"];
     dictOutput["supplier"] = supplierAddress;
-    dictOutput["pricing"] = conversionAgentAddress;
+    dictOutput["conversionAgent"] = conversionAgentAddress;
+    dictOutput["sanityRates"] = sanityRatesAddress;
     dictOutput["coinrap"] = coinrapAddress;
     dictOutput["wrapper"] = wrapperAddress;
     const json = JSON.stringify(dictOutput, null, 2);
