@@ -69,7 +69,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         returns(uint)
     {
         require(enabled);
-        require(validateTradeInput(src, srrate100cAmount, destAddress, rate100, sn, code));
+        require(validateTradeInput(src, srcAmount, destAddress, rate100, sn, code));
 
         uint userSrcBalanceBefore;
         
