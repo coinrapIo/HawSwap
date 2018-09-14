@@ -5,6 +5,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# build
+build/
+etc/
+
 # Runtime data
 pids
 *.pid
@@ -59,4 +63,8 @@ typings/
 
 # next.js build output
 .next
+
+# dev enviroment files
+w3deploy/
+test/
 
