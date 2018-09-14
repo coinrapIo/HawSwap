@@ -64,7 +64,7 @@
             "operator": [
                 "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
             ],
-            "alerter": []
+            "alerter": ["0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"]
         },
         "WhiteList": {
             "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
@@ -110,11 +110,13 @@
     },
     "max gas price": "50000000000",
     "neg diff in bps": 20,
-    "min expected rate slippage": 250,
+    "min expected rate slippage": 300,
     "CRP wallet": "0x7629AeC34Bb0E53A723F400C066Dd8caa2c0b766",
     "KNC to ETH rate": 300,
     "tax fees bps": 2000,
     "tax wallet address": "0x7629AeC34Bb0E53A723F400C066Dd8caa2c0b766",
-    "valid duration block": 24,
+    "valid duration block": 500000,
+    "valid block number": 255,
+    "quote key": 8795180688932864,
     "output filename": "mainnet.json"
 }

@@ -19,9 +19,11 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     WhiteListInterface public whiteListContract;
     ExpectedRateInterface public expectedRateContract;
     uint                  public maxGasPrice = 50 * 1000 * 1000 * 1000; // 50 gwei
+    uint                  internal validBlkNum = 256; 
     bool                  public enabled = false; // network is enabled
     mapping(bytes32=>uint) public info; // this is only a UI field for external app.
     mapping(address=>mapping(bytes32=>bool)) public perSupplierListedPairs;
+    uint    internal  quoteKey = 0;
 
     constructor (address _admin) public {
         require(_admin != address(0));
@@ -69,6 +71,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         returns(uint)
     {
         require(enabled);
+        require((sn < block.number) && (block.number - sn < validBlkNum));
         require(validateTradeInput(src, srcAmount, destAddress, rate100, sn, code));
 
         uint userSrcBalanceBefore;
@@ -171,7 +174,8 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         WhiteListInterface    _whiteList,
         ExpectedRateInterface _expectedRate,
         uint                  _maxGasPrice,
-        uint                  _negligibleRateDiff
+        uint                  _negligibleRateDiff,
+        uint                  _validBlkNum
     )
         public
         onlyAdmin
@@ -179,11 +183,13 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         require(_whiteList != address(0));
         require(_expectedRate != address(0));
         require(_negligibleRateDiff <= 100 * 100); // at most 100%
+        require( _validBlkNum > 1 && _validBlkNum < 256);
         
         whiteListContract = _whiteList;
         expectedRateContract = _expectedRate;
         maxGasPrice = _maxGasPrice;
         negligibleRateDiff = _negligibleRateDiff;
+        validBlkNum = _validBlkNum;
     }
 
     function setEnable(bool _enable) public onlyAdmin {
@@ -192,6 +198,15 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             require(expectedRateContract != address(0));
         }
         enabled = _enable;
+    }
+
+    function setQuoteKey(uint _quoteKey) public onlyOperator{
+        require(_quoteKey > 0, "quoteKey must greater than 0!");
+        quoteKey = _quoteKey;
+    }
+
+    function getQuoteKey() public onlyOperator view returns(uint){
+        return quoteKey;
     }
 
     function setInfo(bytes32 field, uint value) public onlyOperator {
@@ -304,7 +319,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         SupplierInterface theSupplier = suppliers[supplierInd];
         require((rate > 0) && (rate100 > 0));
         require((rate < MAX_RATE) && (rate100 >0));
-        require((rate >= minConversionRate) && (rate100 >= minConversionRate));
+        require(rate100 >= minConversionRate);
 
         uint actualSrcAmount = srcAmount;
         uint actualDestAmount = calcDestAmount(src, dest, actualSrcAmount, rate100);
@@ -404,8 +419,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     /// @param srcAmount amount of src tokens
     /// @return true if input is valid
     function validateTradeInput(ERC20 src, uint srcAmount, address destAddress, uint rate, uint sn, bytes32 code) internal view returns(bool) {
-        
-        if (keccak256(rate, sn, "xxx") != code){
+        if (keccak256(rate, sn, quoteKey) != code){
             return false;
         }
         if ((srcAmount >= MAX_QTY) || (srcAmount == 0) || (destAddress == 0))

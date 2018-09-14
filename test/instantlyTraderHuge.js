@@ -335,6 +335,9 @@ contract('MartletInstantlyTrader', function(accounts) {
             console.log("result2:", result);
             for(let i=0; i<result.logs.length; i++){
                 console.log("logs", i, ":", result.logs[i].args)
+                for(let j=0; j<result.logs[i].args.length; j++){
+                    console.log("arg", j, result.logs[i].args[j]);
+                }
             }
 
             //check higher ether balance on reserve
