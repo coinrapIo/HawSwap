@@ -4,8 +4,7 @@ pragma solidity ^0.4.18;
 import "../ConversionAgent.sol";
 
 contract MockConversionRate is ConversionAgent {
-    function MockConversionRate(address admin) ConversionAgent(admin) public {
-
+    constructor (address admin) public ConversionAgent(admin){
     }
 
     function mockGetImbalance(ERC20 token, uint rateUpdateBlock, uint currentBlock) public view

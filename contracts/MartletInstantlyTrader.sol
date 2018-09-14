@@ -19,9 +19,11 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     WhiteListInterface public whiteListContract;
     ExpectedRateInterface public expectedRateContract;
     uint                  public maxGasPrice = 50 * 1000 * 1000 * 1000; // 50 gwei
+    uint                  internal validBlkNum = 256; 
     bool                  public enabled = false; // network is enabled
     mapping(bytes32=>uint) public info; // this is only a UI field for external app.
     mapping(address=>mapping(bytes32=>bool)) public perSupplierListedPairs;
+    uint    internal  quoteKey = 0;
 
     constructor (address _admin) public {
         require(_admin != address(0));
@@ -37,6 +39,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     }
     /* solhint-enable no-complex-fallback */
 
+    event LogCode(bytes32 bs);
     event ExecuteTrade(address indexed sender, ERC20 src, ERC20 dest, uint actualSrcAmount, uint actualDestAmount);
 
     /// @notice use token address ETH_TOKEN_ADDRESS for ether
@@ -47,6 +50,9 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     /// @param destAddress Address to send tokens to
     /// @param maxDestAmount A limit on the amount of dest tokens
     /// @param minConversionRate The minimal conversion rate. If actual rate is lower, trade is canceled.
+    /// @param rate100 "x".
+    /// @param sn "y".
+    /// @param code "z"
     /// @return amount of actual dest tokens
     function trade(
         ERC20 src,
@@ -54,18 +60,23 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         ERC20 dest,
         address destAddress,
         uint maxDestAmount,
-        uint minConversionRate
+        uint minConversionRate,
+        uint rate100,
+        uint sn,
+        bytes32 code
+        
     )
         public
         payable
         returns(uint)
     {
         require(enabled);
+        require((sn < block.number) && (block.number - sn < validBlkNum));
+        require(validateTradeInput(src, srcAmount, destAddress, rate100, sn, code));
 
         uint userSrcBalanceBefore;
-        uint userSrcBalanceAfter;
+        
         uint userDestBalanceBefore;
-        uint userDestBalanceAfter;
 
         userSrcBalanceBefore = getBalance(src, msg.sender);
         if (src == ETH_TOKEN_ADDRESS)
@@ -79,21 +90,32 @@ contract MartletInstantlyTrader is Withdrawable, Base {
                                         dest,
                                         destAddress,
                                         maxDestAmount,
-                                        minConversionRate
+                                        minConversionRate,
+                                        rate100
                                         );
         require(actualDestAmount > 0);
-
-        userSrcBalanceAfter = getBalance(src, msg.sender);
-        userDestBalanceAfter = getBalance(dest, destAddress);
-
-        require(userSrcBalanceAfter <= userSrcBalanceBefore);
-        require(userDestBalanceAfter >= userDestBalanceBefore);
-
-        require((userDestBalanceAfter - userDestBalanceBefore) >=
-            calcDstQty((userSrcBalanceBefore - userSrcBalanceAfter), getDecimals(src), getDecimals(dest),
-                minConversionRate));
-
+        require(checkBalance(src, dest, destAddress, userSrcBalanceBefore, userDestBalanceBefore, minConversionRate));
         return actualDestAmount;
+    }
+
+    function checkBalance(
+        ERC20 src, ERC20 dest, address destAddress,
+        uint userSrcBalanceBefore, 
+        uint userDestBalanceBefore, 
+        uint minConversionRate) internal returns(bool){
+        uint userSrcBalanceAfter = getBalance(src, msg.sender);
+        uint userDestBalanceAfter = getBalance(dest, destAddress);
+
+        if(userSrcBalanceAfter > userSrcBalanceBefore){
+            return false;
+        }
+        if(userDestBalanceAfter < userDestBalanceBefore){
+            return false;
+        }
+
+        return (userDestBalanceAfter - userDestBalanceBefore) >=
+            calcDstQty((userSrcBalanceBefore - userSrcBalanceAfter), getDecimals(src), getDecimals(dest),
+                minConversionRate);
     }
 
     event AddSupplier(SupplierInterface supplier, bool add);
@@ -152,7 +174,8 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         WhiteListInterface    _whiteList,
         ExpectedRateInterface _expectedRate,
         uint                  _maxGasPrice,
-        uint                  _negligibleRateDiff
+        uint                  _negligibleRateDiff,
+        uint                  _validBlkNum
     )
         public
         onlyAdmin
@@ -160,11 +183,13 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         require(_whiteList != address(0));
         require(_expectedRate != address(0));
         require(_negligibleRateDiff <= 100 * 100); // at most 100%
+        require( _validBlkNum > 1 && _validBlkNum < 256);
         
         whiteListContract = _whiteList;
         expectedRateContract = _expectedRate;
         maxGasPrice = _maxGasPrice;
         negligibleRateDiff = _negligibleRateDiff;
+        validBlkNum = _validBlkNum;
     }
 
     function setEnable(bool _enable) public onlyAdmin {
@@ -173,6 +198,15 @@ contract MartletInstantlyTrader is Withdrawable, Base {
             require(expectedRateContract != address(0));
         }
         enabled = _enable;
+    }
+
+    function setQuoteKey(uint _quoteKey) public onlyOperator{
+        require(_quoteKey > 0, "quoteKey must greater than 0!");
+        quoteKey = _quoteKey;
+    }
+
+    function getQuoteKey() public onlyOperator view returns(uint){
+        return quoteKey;
     }
 
     function setInfo(bytes32 field, uint value) public onlyOperator {
@@ -270,28 +304,28 @@ contract MartletInstantlyTrader is Withdrawable, Base {
         ERC20 dest,
         address destAddress,
         uint maxDestAmount,
-        uint minConversionRate
+        uint minConversionRate,
+        uint rate100
     )
         internal
         returns(uint)
     {
         require(tx.gasprice <= maxGasPrice);
-        require(validateTradeInput(src, srcAmount, destAddress));
 
         uint supplierInd;
         uint rate;
 
         (supplierInd, rate) = findBestRate(src, dest, srcAmount);
         SupplierInterface theSupplier = suppliers[supplierInd];
-        require(rate > 0);
-        require(rate < MAX_RATE);
-        require(rate >= minConversionRate);
+        require((rate > 0) && (rate100 > 0));
+        require((rate < MAX_RATE) && (rate100 >0));
+        require(rate100 >= minConversionRate);
 
         uint actualSrcAmount = srcAmount;
-        uint actualDestAmount = calcDestAmount(src, dest, actualSrcAmount, rate);
+        uint actualDestAmount = calcDestAmount(src, dest, actualSrcAmount, rate100);
         if (actualDestAmount > maxDestAmount) {
             actualDestAmount = maxDestAmount;
-            actualSrcAmount = calcSrcAmount(src, dest, actualDestAmount, rate);
+            actualSrcAmount = calcSrcAmount(src, dest, actualDestAmount, rate100);
             require(actualSrcAmount <= srcAmount);
         }
 
@@ -312,7 +346,7 @@ contract MartletInstantlyTrader is Withdrawable, Base {
                 destAddress,
                 actualDestAmount,
                 theSupplier,
-                rate,
+                rate100,
                 true));
 
         if ((actualSrcAmount < srcAmount) && (src == ETH_TOKEN_ADDRESS)) {
@@ -384,7 +418,10 @@ contract MartletInstantlyTrader is Withdrawable, Base {
     /// @param src Src token
     /// @param srcAmount amount of src tokens
     /// @return true if input is valid
-    function validateTradeInput(ERC20 src, uint srcAmount, address destAddress) internal view returns(bool) {
+    function validateTradeInput(ERC20 src, uint srcAmount, address destAddress, uint rate, uint sn, bytes32 code) internal view returns(bool) {
+        if (keccak256(rate, sn, quoteKey) != code){
+            return false;
+        }
         if ((srcAmount >= MAX_QTY) || (srcAmount == 0) || (destAddress == 0))
             return false;
 

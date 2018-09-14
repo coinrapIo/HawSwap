@@ -11,61 +11,61 @@ import "./ConversionAgentInterface.sol";
  */
 contract ConversionAgent is ConversionAgentInterface, BalanceTracker, Base{
 
-	struct StepFunction{
+    struct StepFunction{
         //x: value range for variable; y: dependent variable
-		int[] x;
-		int[] y;
-	}
+        int[] x;
+        int[] y;
+    }
 
     //information relevant token rate 
-	struct TokenData {
-		bool listed;
-		bool enabled; 
+    struct TokenData {
+        bool listed;
+        bool enabled; 
 
-		uint compactDataArrayIndex;
-		uint compactDataFieldIndex;
+        uint compactDataArrayIndex;
+        uint compactDataFieldIndex;
 
-		uint baseBuyRate;
-		uint baseSellRate;
-		StepFunction buyRateQtyStepFunc;
-		StepFunction sellRateQtyStepFunc;
-		StepFunction buyRateImbalanceStepFunc;
-		StepFunction sellRateImbalanceStepFunc;
-	}
+        uint baseBuyRate;
+        uint baseSellRate;
+        StepFunction buyRateQtyStepFunc;
+        StepFunction sellRateQtyStepFunc;
+        StepFunction buyRateImbalanceStepFunc;
+        StepFunction sellRateImbalanceStepFunc;
+    }
 
-	uint public validRateDurationInBlocks = 10;
-	ERC20[] internal listedTokens;
-	mapping(address=>TokenData) internal tokenData;
+    uint public validRateDurationInBlocks = 10;
+    ERC20[] internal listedTokens;
+    mapping(address=>TokenData) internal tokenData;
     bytes32[] internal tokenRatesCompactData;
     uint public numTokensInCurrentCompactData = 0;
-	address public supplierContract;
-	uint constant internal NUM_TOKENS_IN_COMPACT_DATA = 14;
+    address public supplierContract;
+    uint constant internal NUM_TOKENS_IN_COMPACT_DATA = 14;
     uint constant internal BYTES_14_OFFSET = (2 ** (8 * NUM_TOKENS_IN_COMPACT_DATA));
     uint constant internal MAX_STEPS_IN_FUNCTION = 10;
     int  constant internal MAX_BPS_ADJUSTMENT = 10 ** 11; // 1B %
     int  constant internal MIN_BPS_ADJUSTMENT = -100 * 100; // cannot go down by more than 100%
 
-	constructor (address _admin) public BalanceTracker(_admin){
-	}
+    constructor (address _admin) public BalanceTracker(_admin){
+    }
 
-	function addToken(ERC20 token) public onlyAdmin{
-		require(!tokenData[token].listed);
-		tokenData[token].listed = true;
-		listedTokens.push(token);
+    function addToken(ERC20 token) public onlyAdmin{
+        require(!tokenData[token].listed);
+        tokenData[token].listed = true;
+        listedTokens.push(token);
 
-		if(numTokensInCurrentCompactData==0){
-			tokenRatesCompactData.length++;
-		}
+        if(numTokensInCurrentCompactData==0){
+            tokenRatesCompactData.length++;
+        }
 
-		tokenData[token].compactDataArrayIndex = tokenRatesCompactData.length - 1;
-		tokenData[token].compactDataFieldIndex = numTokensInCurrentCompactData;
+        tokenData[token].compactDataArrayIndex = tokenRatesCompactData.length - 1;
+        tokenData[token].compactDataFieldIndex = numTokensInCurrentCompactData;
 
-		numTokensInCurrentCompactData = (numTokensInCurrentCompactData + 1) % NUM_TOKENS_IN_COMPACT_DATA;
+        numTokensInCurrentCompactData = (numTokensInCurrentCompactData + 1) % NUM_TOKENS_IN_COMPACT_DATA;
 
-		setGarbageToVolumeRecorder(token);
+        setGarbageToVolumeRecorder(token);
 
-		setDecimals(token);
-	}
+        setDecimals(token);
+    }
 
     event LogCompactData(uint buy, uint sell, uint blockNumer);
     function setCompactData(bytes14[] buy, bytes14[] sell, uint blockNumber, uint[] indices) public onlyOperator{
@@ -85,42 +85,33 @@ contract ConversionAgent is ConversionAgentInterface, BalanceTracker, Base{
         
     }    
 
-	function setBaseRate(ERC20[] tokens, uint[] baseBuy, uint[] baseSell, bytes14[] buy, bytes14[] sell, uint blockNumber, uint[] indices) public onlyOperator{
-		require(tokens.length == baseBuy.length);
-		require(tokens.length == baseSell.length);
-		require(sell.length == buy.length);
-		require(sell.length == indices.length);
+    function setBaseRate(ERC20[] tokens, uint[] baseBuy, uint[] baseSell, bytes14[] buy, bytes14[] sell, uint blockNumber, uint[] indices) public onlyOperator{
+        require(tokens.length == baseBuy.length);
+        require(tokens.length == baseSell.length);
+        require(sell.length == buy.length);
+        require(sell.length == indices.length);
 
-		for(uint i=0; i<tokens.length; i++){
-			require(tokenData[tokens[i]].listed);
-			tokenData[tokens[i]].baseBuyRate = baseBuy[i];
-			tokenData[tokens[i]].baseSellRate = baseSell[i];
-		}
+        for(uint i=0; i<tokens.length; i++){
+            require(tokenData[tokens[i]].listed);
+            tokenData[tokens[i]].baseBuyRate = baseBuy[i];
+            tokenData[tokens[i]].baseSellRate = baseSell[i];
+        }
 
-		setCompactData(buy, sell, blockNumber, indices);
-	}
+        setCompactData(buy, sell, blockNumber, indices);
+    }
 
-	function setQtyStepFunction(ERC20 token, int[] xBuy, int[] yBuy, int[] xSell, int[] ySell) public onlyOperator{
-		require(xBuy.length == yBuy.length);
-		require(xSell.length == ySell.length);
-		require(xBuy.length <= MAX_STEPS_IN_FUNCTION);
-		require(xSell.length <= MAX_STEPS_IN_FUNCTION);
-		require(tokenData[token].listed);
+    function setQtyStepFunction(ERC20 token, int[] xBuy, int[] yBuy, int[] xSell, int[] ySell) public onlyOperator{
+        require(xBuy.length == yBuy.length);
+        require(xSell.length == ySell.length);
+        require(xBuy.length <= MAX_STEPS_IN_FUNCTION);
+        require(xSell.length <= MAX_STEPS_IN_FUNCTION);
+        require(tokenData[token].listed);
 
-		tokenData[token].buyRateQtyStepFunc = StepFunction(xBuy, yBuy);
-		tokenData[token].sellRateQtyStepFunc = StepFunction(xSell, ySell);
-	}
+        tokenData[token].buyRateQtyStepFunc = StepFunction(xBuy, yBuy);
+        tokenData[token].sellRateQtyStepFunc = StepFunction(xSell, ySell);
+    }
 
-	function setImbalanceStepFunction(
-        ERC20 token,
-        int[] xBuy,
-        int[] yBuy,
-        int[] xSell,
-        int[] ySell
-    )
-        public
-        onlyOperator
-    {
+    function setImbalanceStepFunction(ERC20 token, int[] xBuy, int[] yBuy, int[] xSell, int[] ySell) public onlyOperator{
         require(xBuy.length == yBuy.length);
         require(xSell.length == ySell.length);
         require(xBuy.length <= MAX_STEPS_IN_FUNCTION);
@@ -150,19 +141,12 @@ contract ConversionAgent is ConversionAgentInterface, BalanceTracker, Base{
         supplierContract = supplier;
     }
 
-    function logImbalance(
-        ERC20 token,
-        int buyAmount,
-        uint rateUpdateBlock,
-        uint currentBlock
-    )
-        public
-    {
+    function logImbalance(ERC20 token, int buyAmount, uint rateUpdateBlock, uint currentBlock) public {
         require(msg.sender == supplierContract);
 
         if (rateUpdateBlock == 0) rateUpdateBlock = getRateUpdateBlock(token);
 
-        return addImbalance(token, buyAmount, rateUpdateBlock, currentBlock);
+        addImbalance(token, buyAmount, rateUpdateBlock, currentBlock);
     }
 
     /* solhint-disable function-max-lines */
