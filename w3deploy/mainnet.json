@@ -69,7 +69,9 @@
       "operator": [
         "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
       ],
-      "alerter": []
+      "alerter": [
+        "0x2F4B6C2DdcEE6F3C2F33c86A7011386aEe07CF55"
+      ]
     },
     "WhiteList": {
       "admin": "0xD794c4BE4D49D863227A5F6d612fEfa96486EE90",
@@ -113,16 +115,12 @@
   },
   "max gas price": "50000000000",
   "neg diff in bps": 20,
-  "min expected rate slippage": 250,
+  "min expected rate slippage": 300,
   "KNC to ETH rate": 300,
   "tax wallet address": "0x7629AeC34Bb0E53A723F400C066Dd8caa2c0b766",
   "tax fees bps": 2000,
-  "valid duration block": 24,
+  "valid duration block": 500000,
+  "quote key": 8795180688932864,
   "supplier": "0x044eDb5d3dCeF28b6b23C26924eC3bCc20Ec9934",
-  "conversionAgent": "0x482d14bDa2Bc6dD543B8E6E35376c2A6b6ca6782",
-  "sanityRates": "0xb412EC4Fe1621DD7BBbEf280cB4D4F66948E6941",
-  "coinrap": "0xC1E3ec94dCD86C5cc17CfC116AE43D6d49439Ee7",
-  "wrapper": "0xCe0f6166B8FE37f1e70C5d0EB370169F0576D707",
-  "whitelist": "0xaB0C172e5753DEE07689CB7e19C8b4165a148B75",
-  "expectedRate": "0xBb845FF7D45E498005bf8083704A33A46b6cB497"
+  "sanityRates": "0x0B1B77EfA0F89Fa2283E89BD082851AFAC8146D8"
 }

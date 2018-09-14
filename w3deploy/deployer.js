@@ -160,10 +160,12 @@ let expectedRatePermissions;
 const depositAddresses = [];
 let maxGasPrice = 50 * 1000 * 1000 * 1000;
 let negDiffInBps = 15;
+let validBlkNum = 255;
 let minExpectedRateSlippage = 200;
 let kncWallet;
 let kncToEthRate = 307;
 let validDurationBlock = 400;
+let quoteKey = 123456789;
 let taxWalletAddress = 0x0;
 let taxFeesBps = 1000;
 
@@ -224,12 +226,14 @@ function parseInput( jsonInput ) {
 
     maxGasPrice =  web3.utils.toBN(jsonInput["max gas price"]);
     negDiffInBps = web3.utils.toBN(jsonInput["neg diff in bps"]);
+    validBlkNum = web3.utils.toBN(jsonInput['valid block number']);
     minExpectedRateSlippage = web3.utils.toBN(jsonInput["min expected rate slippage"]);
     kncWallet = jsonInput["KNC wallet"];
     kncToEthRate = web3.utils.toBN(jsonInput["KNC to ETH rate"]);
     taxFeesBps = jsonInput["tax fees bps"];
     taxWalletAddress = jsonInput["tax wallet address"];
     validDurationBlock = web3.utils.toBN(jsonInput["valid duration block"]);
+    quoteKey = web3.utils.toBN(jsonInput['quote key']);
     testers = jsonInput["whitelist params"]["testers"];
     testersCat = jsonInput["whitelist params"]["testers category"];
     testersCap = jsonInput["whitelist params"]["testers cap"];
@@ -273,7 +277,7 @@ async function main() {
 
   console.log("starting compilation");
   const output = await solc.compile({ sources: input }, 1);
-  //console.log(output);
+  // console.log("solc:",output);
   console.log("finished compilation");
 
   if (!dontSendTx) {
@@ -339,6 +343,8 @@ async function main() {
   console.log("set num listed pairs info");
   const numListPairsString = web3.utils.sha3("num listed pairs");
   await sendTx(coinrapContract.methods.setInfo(numListPairsString,tokens.length * 2));
+  console.log("set quote key:", quoteKey)
+  await sendTx(coinrapContract.methods.setQuoteKey(quoteKey));
   console.log("delete temp operator to set info data");
   await sendTx(coinrapContract.methods.removeOperator(sender));
 
@@ -347,7 +353,7 @@ async function main() {
   await sendTx(coinrapContract.methods.setParams(whitelistAddress,
                                                  expectedRateAddress,
                                                  maxGasPrice,
-                                                 negDiffInBps));
+                                                 negDiffInBps, validBlkNum));
 
   console.log("coinrap enable");
   await sendTx(coinrapContract.methods.setEnable(true));
@@ -485,6 +491,7 @@ function printParams(jsonInput) {
     dictOutput["tax wallet address"] = jsonInput["tax wallet address"];
     dictOutput["tax fees bps"] = jsonInput["tax fees bps"];
     dictOutput["valid duration block"] = jsonInput["valid duration block"];
+    dictOutput["quote key"] = jsonInput["quote key"]
     dictOutput["supplier"] = supplierAddress;
     dictOutput["conversionAgent"] = conversionAgentAddress;
     dictOutput["sanityRates"] = sanityRatesAddress;

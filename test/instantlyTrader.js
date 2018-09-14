@@ -8,6 +8,7 @@ let ExpectedRate = artifacts.require("./ExpectedRate.sol");
 
 let Helper = require("./helper.js");
 let BigNumber = require('bignumber.js');
+let utils = require('web3-utils');
 
 //global variables
 //////////////////
@@ -100,6 +101,8 @@ let indices = [];
 let compactBuyArr = [];
 let compactSellArr = [];
 
+let sn = 0;
+
 contract('MartletInstantlyTrader', function(accounts) {
     it("should init globals. init 2 ConversionAgent Inst, init tokens and add to pricing inst. set basic data per token.", async function () {
         // set account addresses
@@ -111,6 +114,7 @@ contract('MartletInstantlyTrader', function(accounts) {
         walletId = accounts[6];
 
         currentBlock = priceUpdateBlock = await Helper.getCurrentBlock();
+        sn = currentBlock;
 
 //        console.log("current block: " + currentBlock);
         //init contracts
@@ -295,6 +299,7 @@ contract('MartletInstantlyTrader', function(accounts) {
             expectedRate = addBps(expectedRate, extraBps);
             //let extraBps = getExtraBpsForImbalanceBuyQuantity(dstQty);
             //expectedRate = addBps(expectedRate, extraBps);
+            let code = utils.soliditySha3(buyRate[0].valueOf(), sn, "xxx");
 
             //check correct rate calculated
             console.log("ExpRate:", buyRate[0].toNumber(), buyRate[1].toNumber(), "calc:", expectedRate.toNumber());
@@ -302,7 +307,9 @@ contract('MartletInstantlyTrader', function(accounts) {
 
             //perform trade
             console.log("srcAmount,", amountWei, "maxDestAmount,", 100, "minConversionRate,", buyRate[1].valueOf());
-            result = await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 100, buyRate[1].valueOf(), {from:user1, value:amountWei, gasPrice: 20 * 1000 * 1000 * 1000});
+            result = await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 100, buyRate[1].valueOf(), 
+                buyRate[0].valueOf(), sn, code,
+                {from:user1, value:amountWei, gasPrice: 20 * 1000 * 1000 * 1000});
             console.log("result2:", result, "logs:", result.logs[0].args);
 
             //check higher ether balance on reserve
@@ -353,7 +360,10 @@ contract('MartletInstantlyTrader', function(accounts) {
         }
 
         //perform trade
-        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user1, 800, buyRate2, {from:user1, value:amountWei, gasPrice: 20 * 1000 * 1000 * 1000});
+        let code = utils.soliditySha3(buyRate2.valueOf(), sn, "xxx");
+        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user1, 800, buyRate2,
+            buyRate2.valueOf(), sn, code,
+         {from:user1, value:amountWei, gasPrice: 20 * 1000 * 1000 * 1000});
 
         //check higher ether balance on reserve 2
         expectedSupplier2BalanceWei = (expectedSupplier2BalanceWei * 1) + amountWei;
@@ -401,8 +411,11 @@ contract('MartletInstantlyTrader', function(accounts) {
 
         //perform trade
         let rates = await network.getExpectedRate(tokenAdd[tokenInd], ethAddress, amountTwei);
+        let code = utils.soliditySha3(rates[0].valueOf(), sn, "xxx");
         console.log("rates:", rates[0].valueOf(), rates[1].valueOf(), "amountTwei:", amountTwei, "sellRate1", sellRate1.valueOf());
-        let destAmount = await network.trade(tokenAdd[tokenInd], amountTwei, ethAddress, user2, 3000, sellRate1, {from:user1, value:0, gasPrice: 20 * 1000 * 1000 * 1000});
+        let destAmount = await network.trade(tokenAdd[tokenInd], amountTwei, ethAddress, user2, 3000, sellRate1, 
+            rates[0].valueOf(), sn, code,
+        {from:user1, value:0, gasPrice: 20 * 1000 * 1000 * 1000});
         console.log("reserve sell rate diff:", destAmount, "logs:", destAmount.logs[0].args);
 
         //check lower ether balance on reserve 1
@@ -442,7 +455,10 @@ contract('MartletInstantlyTrader', function(accounts) {
         await token.approve(network.address, amountTwei, {from:user1})
 
         //perform full amount trade. see token balance on user 1 zero
-        let destAmount = await network.trade(tokenAdd[tokenInd], amountTwei, ethAddress, user2, maxDestAmountHigh, minRate, {from:user1, gasPrice:20*1000*1000*1000});
+        let code = utils.soliditySha3(minRate, sn, "xxx");
+        let destAmount = await network.trade(tokenAdd[tokenInd], amountTwei, ethAddress, user2, maxDestAmountHigh, minRate, 
+        minRate, sn, code,
+        {from:user1, gasPrice:20*1000*1000*1000});
 
         //check token balance on user1 is zero
         let tokenTweiBalance = await token.balanceOf(user1);
@@ -456,7 +472,10 @@ contract('MartletInstantlyTrader', function(accounts) {
         let user2InitBalance = await Helper.getBalancePromise(user2);
 
         // perform blocked amount trade. see token balance on user 1 zero
-        destAmount = await network.trade(tokenAdd[tokenInd], amountTwei, ethAddress, user2, maxDestAmountLow, minRate, {from:user1, gasPrice:20*1000*1000*1000});
+        
+        destAmount = await network.trade(tokenAdd[tokenInd], amountTwei, ethAddress, user2, maxDestAmountLow, minRate, 
+        minRate, sn, code,
+        {from:user1, gasPrice:20*1000*1000*1000});
 
         // check used ethers as expected.
         let userPostBalance = await Helper.getBalancePromise(user2);
@@ -482,14 +501,19 @@ contract('MartletInstantlyTrader', function(accounts) {
         let initialTokBalUser2 = token.balanceOf(user2);
 
         //perform full amount trade. see full token balance on user 2
-        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, maxDestAmountHigh, minRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+        let code = utils.soliditySha3(minRate, sn, "xxx");
+        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, maxDestAmountHigh, minRate, 
+            minRate, sn, code,
+            {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
 
         let postTokenBalUser2 = await token.balanceOf(user2);
 
         let actualTradedTokens1 = postTokenBalUser2.valueOf()*1 - initialTokBalUser2.valueOf()*1;
 
         //perform limited amount trade
-        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, maxDestAmountLow, minRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, maxDestAmountLow, minRate, 
+            minRate, sn, code,
+            {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
 
         let post2ndTokenBalUser2 = await token.balanceOf(user2);
 
@@ -525,8 +549,11 @@ contract('MartletInstantlyTrader', function(accounts) {
         //perform 20 trades
         let minRate = 0;
         let maxDestAmount = 2000;
+        let code = utils.soliditySha3(buyRate2, sn, "xxx");
         for (let i = 0; i < 20; i++){
-            await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, maxDestAmount, minRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+            await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, maxDestAmount, minRate, 
+            buyRate2, sn, code, 
+            {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
         }
 
         //again take balance from both reserves
@@ -578,8 +605,11 @@ contract('MartletInstantlyTrader', function(accounts) {
         //perform 20 trades
         let minRate = 0;
         let maxDestAmount = 900;
+        let code = utils.soliditySha3(sellRate1, sn, "xxx");
         for (let i = 0; i < numLoops; i++){
-            await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress, user2, maxDestAmount, minRate, {from:user1, gasPrice:20*1000*1000*1000});
+            await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress, user2, maxDestAmount, minRate,
+            sellRate1, sn, code,
+            {from:user1, gasPrice:20*1000*1000*1000});
         }
 
         //again take balance from both reserves
@@ -605,14 +635,17 @@ contract('MartletInstantlyTrader', function(accounts) {
         let token = tokens[tokenInd]; //choose some token
         let amountWei = 4 * 1;
         let minConversionRate = 0;
+        let buyRate = await reserve2.getConversionRate(ethAddress, tokenAdd[tokenInd], amountWei, currentBlock + 10);
 
         //disable trade
         await network.setEnable(false);
 
         //perform trade
+        let code = utils.soliditySha3(buyRate, sn, "xxx");
         try {
              await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+                minConversionRate, buyRate, sn, code, 
+                {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -622,7 +655,8 @@ contract('MartletInstantlyTrader', function(accounts) {
         await network.setEnable(true);
 
         await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+                minConversionRate, buyRate, sn, code,
+                {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify buy reverted when bad ether amount is sent.", async function () {
@@ -630,31 +664,39 @@ contract('MartletInstantlyTrader', function(accounts) {
         let token = tokens[tokenInd]; //choose some token
         let amountWei = 4 * 1;
         let minConversionRate = 0;
+        let sellRate2 = await reserve2.getConversionRate(tokenAdd[tokenInd], ethAddress, amountWei, currentBlock + 10);
 
         //perform trade
+        let code = utils.soliditySha3(sellRate2, sn, "xxx");
         try {
              await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei*1-1, gasPrice:20*1000*1000*1000});
+                minConversionRate, sellRate2, sn, code,
+                {from:user1, value:amountWei*1-1, gasPrice:20*1000*1000*1000});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
         }
 
         await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+                minConversionRate, sellRate2, sn, code, 
+                {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify sell reverted when no token allowance.", async function () {
         let tokenInd = 1;
         let token = tokens[tokenInd]; //choose some token
         let amountTWei = 15*1;
+        let sellRate2 = await reserve2.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTWei, currentBlock + 10);
 
         // transfer funds to user and approve funds to network
         await token.transfer(user1, amountTWei*1-1);
         await token.approve(network.address, amountTWei*1-1, {from:user1})
 
+        let code = utils.soliditySha3(sellRate2, sn, "xxx");
         try {
-            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0, {from:user1, gasPrice:20*1000*1000*1000});
+            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0, 
+            sellRate2, sn, code,
+            {from:user1, gasPrice:20*1000*1000*1000});
             assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -665,27 +707,35 @@ contract('MartletInstantlyTrader', function(accounts) {
         await token.approve(network.address, amountTWei*1, {from:user1});
 
         //perform same trade
-        await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0, {from:user1, gasPrice:20*1000*1000*1000});
+        await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0,
+        sellRate2, sn, code,
+         {from:user1, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify sell reverted when sent with ether value.", async function () {
         let tokenInd = 1;
         let token = tokens[tokenInd]; //choose some token
         let amountTWei = 15*1;
+        let sellRate2 = await reserve2.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTWei, currentBlock + 10);
 
         // transfer funds to user and approve funds to network
         await token.transfer(user1, amountTWei*1);
         await token.approve(network.address, amountTWei*1, {from:user1})
+        let code = utils.soliditySha3(sellRate2, sn, "xxx");
 
         try {
-            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0, {from:user1, value: 10, gasPrice:20*1000*1000*1000});
+            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0, 
+            sellRate2, sn, code,
+            {from:user1, value: 10, gasPrice:20*1000*1000*1000});
             assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
         }   
 
         //perform same trade
-        await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0, {from:user1, value: 0, gasPrice:20*1000*1000*1000});
+        await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, 5000, 0,
+            sellRate2, sn, code,
+            {from:user1, value: 0, gasPrice:20*1000*1000*1000});
     });
 
 
@@ -702,8 +752,11 @@ contract('MartletInstantlyTrader', function(accounts) {
         let sellRate1 = await reserve1.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTweiLow, currentBlock + 10);
 
         //try with low amount Twei
+        let code = utils.soliditySha3(sellRate1, sn, "xxx");
         try {
-            await network.trade(tokenAdd[tokenInd], amountTweiLow, ethAddress, user2, 3000, sellRate1, {from:user1, gasPrice:20*1000*1000*1000});
+            await network.trade(tokenAdd[tokenInd], amountTweiLow, ethAddress, user2, 3000, sellRate1,
+            sellRate1, sn, code,
+            {from:user1, gasPrice:20*1000*1000*1000});
             assert(false, "throw was expected in line above.")
         }
         catch(e){
@@ -711,7 +764,9 @@ contract('MartletInstantlyTrader', function(accounts) {
         }
 
         //perform same trade with higher value to see success
-        let destAmount = await network.trade(tokenAdd[tokenInd], amountTWeiHi, ethAddress, user2, 3000, sellRate1, {from:user1, gasPrice:20*1000*1000*1000});
+        let destAmount = await network.trade(tokenAdd[tokenInd], amountTWeiHi, ethAddress, user2, 3000, sellRate1,
+        sellRate1, sn, code,
+        {from:user1, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify buy reverted when unlisting pair.", async function () {
@@ -723,11 +778,15 @@ contract('MartletInstantlyTrader', function(accounts) {
         //unlist and verify trade reverted.
         await network.listPairForSupplier(reserve1.address, ethAddress, tokenAdd[tokenInd], false);
         await network.listPairForSupplier(reserve2.address, ethAddress, tokenAdd[tokenInd], false);
+        let buyRate1 = await reserve1.getConversionRate(ethAddress, tokenAdd[tokenInd],  amountWei, currentBlock + 10);
 
+        //try with low amount Twei
+        let code = utils.soliditySha3(buyRate1, sn, "xxx");
         //perform trade
         try {
              await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+                minConversionRate, buyRate1, sn, code,
+                {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -738,7 +797,7 @@ contract('MartletInstantlyTrader', function(accounts) {
         await network.listPairForSupplier(reserve2.address, ethAddress, tokenAdd[tokenInd], true);
 
         await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+                minConversionRate, buyRate1, sn, code, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify sell reverted when unlisting pair.", async function () {
@@ -756,10 +815,14 @@ contract('MartletInstantlyTrader', function(accounts) {
         await network.listPairForSupplier(reserve1.address, tokenAdd[tokenInd], ethAddress, false);
         await network.listPairForSupplier(reserve2.address, tokenAdd[tokenInd], ethAddress, false);
 
+        let sellRate1 = await reserve1.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTWei, currentBlock + 10);
+
+        let code = utils.soliditySha3(sellRate1, sn, "xxx");
+
         //perform trade
         try {
              await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress, user2, maxDestAmount,
-                minConversionRate, {from:user1, gasPrice:20*1000*1000*1000});
+                minConversionRate, sellRate1, sn, code, {from:user1, gasPrice:20*1000*1000*1000});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -770,7 +833,7 @@ contract('MartletInstantlyTrader', function(accounts) {
         await network.listPairForSupplier(reserve2.address, tokenAdd[tokenInd], ethAddress, true);
 
         await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress, user2, maxDestAmount,
-            minConversionRate, {from:user1, gasPrice:20*1000*1000*1000});
+            minConversionRate, sellRate1, sn, code, {from:user1, gasPrice:20*1000*1000*1000});
     });
 
 
@@ -782,10 +845,14 @@ contract('MartletInstantlyTrader', function(accounts) {
         let maxPrice = await network.maxGasPrice();
         let highGas = maxPrice * 2;
 
+        let buyRate1 = await reserve1.getConversionRate(ethAddress, tokenAdd[tokenInd], amountWei, currentBlock + 10);
+
+        let code = utils.soliditySha3(buyRate1, sn, "xxx");
+
         //perform trade
         try {
              await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user1, value:amountWei, gasPrice: highGas});
+                minConversionRate, buyRate1, sn, code, {from:user1, value:amountWei, gasPrice: highGas});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -793,7 +860,7 @@ contract('MartletInstantlyTrader', function(accounts) {
 
         //see trade success with good gas price
         await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                  minConversionRate, {from:user1, value:amountWei, gasPrice: maxPrice});
+                  minConversionRate, buyRate1, sn, code, {from:user1, value:amountWei, gasPrice: maxPrice});
     });
 
 
@@ -810,10 +877,15 @@ contract('MartletInstantlyTrader', function(accounts) {
         //set low wei to sgd rate.
         await whiteList.setSgdToEthRate(10, {from: operator});
 
+        let buyRate1 = await reserve1.getConversionRate(ethAddress, tokenAdd[tokenInd], amountWei, currentBlock + 10);
+        let code = utils.soliditySha3(buyRate1, sn, "xxx");
+
+
         //perform trade
         try {
              await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                minConversionRate, {from:user2, value:amountWei, gasPrice:20*1000*1000*1000});
+                minConversionRate, buyRate1, sn, code,
+                {from:user2, value:amountWei, gasPrice:20*1000*1000*1000});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -825,7 +897,7 @@ contract('MartletInstantlyTrader', function(accounts) {
 
         //see trade success with good gas price
         await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000,
-                  minConversionRate, {from:user2, value:amountWei, gasPrice:20*1000*1000*1000});
+                  minConversionRate, buyRate1, sn, code, {from:user2, value:amountWei, gasPrice:20*1000*1000*1000});
     });
     it("should verify trade reverted src amount > max src amount (10**28).", async function () {
         let tokenInd = 2;
@@ -853,9 +925,13 @@ contract('MartletInstantlyTrader', function(accounts) {
         baseSellRate1[tokenInd] = ethersPerToken.valueOf();
         buys.length = sells.length = indices.length = 0;
         await pricing1.setBaseRate(tokenAdd, baseBuyRate1, baseSellRate1, buys, sells, currentBlock, indices, {from: operator});
-
+        
+        let sellRate1 = await reserve1.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTWei, currentBlock + 10);
+        let code = utils.soliditySha3(sellRate1, sn, "xxx");
         try {
-            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, amountTWei.valueOf(), 0, {from:user1, gasPrice:20*1000*1000*1000});
+            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, amountTWei.valueOf(), 0, 
+            sellRate1, sn, code,
+            {from:user1, gasPrice:20*1000*1000*1000});
             assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -863,7 +939,7 @@ contract('MartletInstantlyTrader', function(accounts) {
 
         //see same trade performed when value is 1 less
         await network.trade(tokenAdd[tokenInd], amountTWei.sub(1).valueOf(), ethAddress,
-                user2, amountTWei.valueOf(), 0, {from:user1, gasPrice:20*1000*1000*1000});
+                user2, amountTWei.valueOf(), 0, sellRate1, sn, code, {from:user1, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify trade reverted when rate below min rate.", async function () {
@@ -878,15 +954,20 @@ contract('MartletInstantlyTrader', function(accounts) {
         let rates = await network.getExpectedRate(tokenAdd[tokenInd], ethAddress, amountTWei);
         let minConvRate = rates[0].valueOf();
         let minSetRate = minConvRate*2;
+        let code = utils.soliditySha3(minConvRate, sn, "xxx");
         try {
-            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, amountTWei.valueOf(), minSetRate, {from:user1, gasPrice:20*1000*1000*1000});
+            await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, amountTWei.valueOf(), minSetRate, 
+            minConvRate, sn, code,
+            {from:user1, gasPrice:20*1000*1000*1000});
             assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
         }
 
         //same trade with zero min rate
-        await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, amountTWei.valueOf(), 0, {from:user1, gasPrice:20*1000*1000*1000});
+        await network.trade(tokenAdd[tokenInd], amountTWei.valueOf(), ethAddress, user2, amountTWei.valueOf(), 0, 
+        minConvRate, sn, code,
+        {from:user1, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify trade reverted when rate above max rate.", async function () {
@@ -908,8 +989,13 @@ contract('MartletInstantlyTrader', function(accounts) {
         await pricing1.setBaseRate(tokenAdd, baseBuyRate1, baseSellRate1, buys, sells, currentBlock, indices, {from: operator});
         await pricing2.setBaseRate(tokenAdd, baseBuyRate2, baseSellRate2, buys, sells, currentBlock, indices, {from: operator});
 
+        
         try {
-            await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress, user2, 5000, 0, {from:user1, gasPrice:20*1000*1000*1000});
+            let sellRate1 = await reserve1.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTWei, currentBlock + 10);
+            let code = utils.soliditySha3(sellRate1, sn, "xxx");
+            await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress, user2, 5000, 0, 
+            sellRate1, sn, code,
+            {from:user1, gasPrice:20*1000*1000*1000});
             assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
@@ -926,8 +1012,10 @@ contract('MartletInstantlyTrader', function(accounts) {
         await pricing2.setBaseRate(tokenAdd, baseBuyRate2, baseSellRate2, buys, sells, currentBlock, indices, {from: operator});
 
         //see same trade performed when normal rate
+        let sellRate1 = await reserve1.getConversionRate(tokenAdd[tokenInd], ethAddress, amountTWei, currentBlock + 10);
+        let code = utils.soliditySha3(sellRate1, sn, "xxx");
         await network.trade(tokenAdd[tokenInd], amountTWei, ethAddress,
-                user2, amountTWei.valueOf(), 0, {from:user1, gasPrice:20*1000*1000*1000});
+                user2, amountTWei.valueOf(), 0, sellRate1, sn, code, {from:user1, gasPrice:20*1000*1000*1000});
     });
 
     it("should verify trade reverted when dest address 0.", async function () {
@@ -937,15 +1025,19 @@ contract('MartletInstantlyTrader', function(accounts) {
         let minConversionRate = 0;
 
         //perform trade
+        let buyRate1 = await reserve1.getConversionRate(ethAddress, tokenAdd[tokenInd], amountWei, currentBlock + 10);
+        let code = utils.soliditySha3(buyRate1, sn, "xxx");
         try {
-             await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], 0, 2000, minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+             await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], 0, 2000, minConversionRate,
+             buyRate1, sn, code, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
              assert(false, "throw was expected in line above.")
         } catch(e){
             assert(Helper.isRevertErrorMessage(e), "expected throw but got: " + e);
         }
 
         //see same trade performed with valid value
-        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000, minConversionRate, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
+        await network.trade(ethAddress, amountWei, tokenAdd[tokenInd], user2, 2000, minConversionRate,
+        buyRate1, sn, code, {from:user1, value:amountWei, gasPrice:20*1000*1000*1000});
     });
 
     it("should get reserve list and verify addresses.", async function () {
