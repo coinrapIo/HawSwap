@@ -11,12 +11,12 @@ interface ConversionAgentInterface {
         uint rateUpdateBlock,
         uint currentBlock
     )
-        public;
+        external;
 
     function getRate(
     	ERC20 token, 
     	uint currentBlockNumber, 
     	bool buy, 
     	uint qty
-    ) public view returns(uint);
+    ) external view returns(uint);
 }
