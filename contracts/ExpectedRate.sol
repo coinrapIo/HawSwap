@@ -54,7 +54,6 @@ contract ExpectedRate is Withdrawable, ExpectedRateInterface, Base {
         (bestReserve, slippageRate) = martletInstantlyTrader.findBestRate(src, dest, (srcQty * quantityFactor));
 
         require(expectedRate <= MAX_RATE);
-
         minSlippage = ((10000 - minSlippageFactorInBps) * expectedRate) / 10000;
         if (slippageRate >= minSlippage) {
             slippageRate = minSlippage;
